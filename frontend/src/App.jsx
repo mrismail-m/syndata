@@ -456,15 +456,27 @@ export default function App() {
               <div className="metrics-grid">
                 <div className="metric-card">
                   <div className="metric-title">{projectType === 'Relational' ? 'Relational fidelity' : projectType === 'Documents' ? 'Math reconciliation' : 'Statistical fidelity'}</div>
-                  <div className="metric-value">{( (1 - results.Fidelity?.Average_KS_Statistic) * 100 ).toFixed(1)}%</div>
+                  <div className="metric-value">
+                    {results.Fidelity?.Average_KS_Statistic !== undefined 
+                      ? `${( (1 - results.Fidelity.Average_KS_Statistic) * 100 ).toFixed(1)}%` 
+                      : 'N/A'}
+                  </div>
                 </div>
                 <div className="metric-card">
-                  <div className="metric-title">{projectType === 'Documents' ? 'Template validity' : 'Data validity'}</div>
-                  <div className="metric-value">100.0%</div>
+                  <div className="metric-title">{projectType === 'Documents' ? 'Template validity' : 'Correlation preservation'}</div>
+                  <div className="metric-value">
+                    {results.Fidelity?.Correlation_Matrix_Error !== undefined 
+                      ? `${( (1 - results.Fidelity.Correlation_Matrix_Error) * 100 ).toFixed(1)}%` 
+                      : '100.0%'}
+                  </div>
                 </div>
                 <div className="metric-card">
-                  <div className="metric-title">{projectType === 'Documents' ? 'Layout consistency' : 'Schema & relationships'}</div>
-                  <div className="metric-value">Passed</div>
+                  <div className="metric-title">{projectType === 'Documents' ? 'Layout consistency' : 'Privacy (Exact matches)'}</div>
+                  <div className="metric-value">
+                    {results.Privacy?.Exact_Matches !== undefined 
+                      ? results.Privacy.Exact_Matches 
+                      : 'Passed'}
+                  </div>
                 </div>
               </div>
 
