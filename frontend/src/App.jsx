@@ -532,15 +532,15 @@ export default function App() {
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', justifyItems: 'center' }}>
                       <div style={{ width: '100%', maxWidth: '350px', textAlign: 'center' }}>
-                        <img src={workspaces[project]?.images?.['pca_projection.png'] || `/api/image/pca_projection.png?t=${Date.now()}`} alt="PCA" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
+                        <img src={workspaces[project]?.images?.['pca_projection.png'] || `/api/image/pca_projection.png?project_name=${encodeURIComponent(project)}&t=${Date.now()}`} alt="PCA" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>PCA Projection</div>
                       </div>
                       <div style={{ width: '100%', maxWidth: '350px', textAlign: 'center' }}>
-                        <img src={workspaces[project]?.images?.['correlation_heatmap.png'] || `/api/image/correlation_heatmap.png?t=${Date.now()}`} alt="Correlation" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
+                        <img src={workspaces[project]?.images?.['correlation_heatmap.png'] || `/api/image/correlation_heatmap.png?project_name=${encodeURIComponent(project)}&t=${Date.now()}`} alt="Correlation" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>Correlation Heatmap</div>
                       </div>
                       <div style={{ gridColumn: '1 / -1', width: '100%', maxWidth: '350px', textAlign: 'center', marginTop: '16px' }}>
-                        <img src={workspaces[project]?.images?.['dcr_histogram.png'] || `/api/image/dcr_histogram.png?t=${Date.now()}`} alt="DCR" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
+                        <img src={workspaces[project]?.images?.['dcr_histogram.png'] || `/api/image/dcr_histogram.png?project_name=${encodeURIComponent(project)}&t=${Date.now()}`} alt="DCR" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>Distance to Closest Record (DCR)</div>
                       </div>
                     </div>
