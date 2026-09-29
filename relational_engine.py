@@ -64,12 +64,22 @@ def main():
     # 1. Load Data
     data = {}
     
-    if os.path.exists("uploaded_data") and len([f for f in os.listdir("uploaded_data") if f.endswith(".csv")]) > 1:
+    db_files = [f for f in os.listdir("uploaded_data") if f.endswith((".db", ".sqlite"))] if os.path.exists("uploaded_data") else []
+    csv_files = [f for f in os.listdir("uploaded_data") if f.endswith(".csv")] if os.path.exists("uploaded_data") else []
+    
+    if db_files:
+        import sqlite3
+        db_path = f"uploaded_data/{db_files[0]}"
+        conn = sqlite3.connect(db_path)
+        tables = pd.read_sql_query("SELECT name FROM sqlite_master WHERE type='table';", conn)['name'].tolist()
+        for table in tables:
+            data[table] = pd.read_sql_query(f"SELECT * FROM {table}", conn)
+        conn.close()
+    elif len(csv_files) > 1:
         # Read uploaded files
-        for f in os.listdir("uploaded_data"):
-            if f.endswith(".csv"):
-                table_name = os.path.splitext(f)[0].capitalize()
-                data[table_name] = pd.read_csv(f"uploaded_data/{f}")
+        for f in csv_files:
+            table_name = os.path.splitext(f)[0].capitalize()
+            data[table_name] = pd.read_csv(f"uploaded_data/{f}")
     elif os.path.exists("../../sample_data/customers.csv"):
         data['Customers'] = pd.read_csv("../../sample_data/customers.csv")
         data['Orders'] = pd.read_csv("../../sample_data/orders.csv")
@@ -83,31 +93,36 @@ def main():
     # Detect metadata
     metadata.detect_from_dataframes(data)
     
-    # Update PKs manually if auto-detection misses
-    metadata.update_table(table_name='Customers', primary_key='customer_id')
-    metadata.update_table(table_name='Orders', primary_key='order_id')
-    metadata.update_table(table_name='OrderItems', primary_key='item_id')
+    # Only configure hardcoded schema if we are using the sample dataset
+    if 'Customers' in data and 'Orders' in data and 'OrderItems' in data:
+        # Update PKs manually if auto-detection misses
+        metadata.set_primary_key(table_name='Customers', column_name='customer_id')
+        metadata.set_primary_key(table_name='Orders', column_name='order_id')
+        metadata.set_primary_key(table_name='OrderItems', column_name='item_id')
 
-    print("--- 2. Building Relational Map (Referential Integrity) ---")
-    # Orders -> Customers
-    metadata.add_relationship(
-        parent_table_name='Customers',
-        child_table_name='Orders',
-        parent_primary_key='customer_id',
-        child_foreign_key='customer_id'
-    )
-    
-    # OrderItems -> Orders
-    metadata.add_relationship(
-        parent_table_name='Orders',
-        child_table_name='OrderItems',
-        parent_primary_key='order_id',
-        child_foreign_key='order_id'
-    )
-    
-    print("Schema Relationships configured:")
-    for rel in metadata.relationships:
-        print(f"   [FK] {rel['child_table_name']}.{rel['child_foreign_key']} -> {rel['parent_table_name']}.{rel['parent_primary_key']}")
+        print("--- 2. Building Relational Map (Referential Integrity) ---")
+        # Orders -> Customers
+        metadata.add_relationship(
+            parent_table_name='Customers',
+            child_table_name='Orders',
+            parent_primary_key='customer_id',
+            child_foreign_key='customer_id'
+        )
+        
+        # OrderItems -> Orders
+        metadata.add_relationship(
+            parent_table_name='Orders',
+            child_table_name='OrderItems',
+            parent_primary_key='order_id',
+            child_foreign_key='order_id'
+        )
+        
+        print("Schema Relationships configured:")
+        for rel in metadata.relationships:
+            print(f"   [FK] {rel['child_table_name']}.{rel['child_foreign_key']} -> {rel['parent_table_name']}.{rel['parent_primary_key']}")
+    else:
+        print("--- 2. Auto-Schema Mode ---")
+        print("Custom tables detected. Skipping hardcoded referential integrity. (Auto-detection limited in prototype)")
 
     print("\n--- 3. Training Hierarchical Modeling Algorithm (HMA) ---")
     print(">> Learning distributions and cross-table cardinality...")
