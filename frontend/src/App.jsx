@@ -6,6 +6,7 @@ export default function App() {
   const [projects, setProjects] = useState([]);
   
   const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [columns, setColumns] = useState([]);
   const [numRows, setNumRows] = useState(1000);
   const [randomSeed, setRandomSeed] = useState(42);
@@ -30,20 +31,22 @@ export default function App() {
   }, [logs]);
 
   const handleFileUpload = (e) => {
-    const uploadedFile = e.target.files[0];
-    setFile(uploadedFile);
-    if (uploadedFile) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const text = event.target.result;
-        const headerLine = text.split('\n')[0];
-        if (headerLine) {
-          const cols = headerLine.split(',').map(c => c.trim().replace(/['"]/g, ''));
-          setColumns(cols.map(c => ({ name: c, type: 'string', role: 'feature', constraints: 'None' })));
-        }
-      };
-      reader.readAsText(uploadedFile.slice(0, 1024)); // Read just the start to get headers
-    }
+    const uploadedFiles = Array.from(e.target.files);
+    if (uploadedFiles.length === 0) return;
+    
+    setFiles(uploadedFiles);
+    setFile(uploadedFiles[0]); // keep for backward compatibility
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target.result;
+      const headerLine = text.split('\n')[0];
+      if (headerLine) {
+        const cols = headerLine.split(',').map(c => c.trim().replace(/['"]/g, ''));
+        setColumns(cols.map(c => ({ name: c, type: 'string', role: 'feature', constraints: 'None' })));
+      }
+    };
+    reader.readAsText(uploadedFiles[0].slice(0, 1024));
   };
 
   const startProfiling = () => {
@@ -58,8 +61,8 @@ export default function App() {
   };
 
   const launchPipeline = async () => {
-    if (!file) {
-      alert("Please select a CSV file first.");
+    if (projectType !== 'Documents' && files.length === 0) {
+      alert("Please select your dataset(s) first.");
       return;
     }
     
@@ -73,13 +76,17 @@ export default function App() {
     setCurrentStepLabel('Initializing Pipeline...');
     setResults(null);
     
-    const formData = new FormData();
-    formData.append('file', file);
-    try {
-      await fetch('http://localhost:8000/api/upload', { method: 'POST', body: formData });
-    } catch (e) {
-      setLogs(['Fatal Error: Could not connect to backend.']);
-      return;
+    if (projectType !== 'Documents') {
+      const formData = new FormData();
+      files.forEach(f => {
+        formData.append('files', f);
+      });
+      try {
+        await fetch('http://localhost:8000/api/upload', { method: 'POST', body: formData });
+      } catch (e) {
+        setLogs(['Fatal Error: Could not connect to backend.']);
+        return;
+      }
     }
     setProgress(30);
     
@@ -239,20 +246,30 @@ export default function App() {
                 <input type="text" placeholder="e.g. Retail Customers Q4" value={project} onChange={e => setProject(e.target.value)} />
               </div>
               
-              <div className="form-group">
-                <label>Sample Dataset (CSV or SQLite database)</label>
-                <label className="upload-box">
-                  {file ? file.name : "Choose CSV or SQLite (.sqlite / .db)"}
-                  <input type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileUpload} />
-                </label>
-                {file && (
-                  <div style={{ textAlign: 'right', marginTop: '8px' }}>
-                    <button style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', cursor: 'pointer' }} onClick={startProfiling}>
-                      Review Data Profile ➔
-                    </button>
-                  </div>
-                )}
-              </div>
+              {projectType !== 'Documents' && (
+                <div className="form-group">
+                  <label>Sample Dataset (CSV or SQLite database)</label>
+                  <label className="upload-box">
+                    {files.length > 1 
+                      ? `${files.length} files selected` 
+                      : file ? file.name : "Choose CSV or SQLite (.sqlite / .db)"}
+                    <input 
+                      type="file" 
+                      accept=".csv,.db,.sqlite" 
+                      multiple={projectType === 'Relational'} 
+                      style={{ display: 'none' }} 
+                      onChange={handleFileUpload} 
+                    />
+                  </label>
+                  {file && (
+                    <div style={{ textAlign: 'right', marginTop: '8px' }}>
+                      <button style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', cursor: 'pointer' }} onClick={startProfiling}>
+                        Review Data Profile ➔
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
               
               <h3 style={{ fontSize: '16px', marginTop: '16px', marginBottom: '8px' }}>Generation Settings</h3>
               

@@ -18,11 +18,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from typing import List
+
 @app.post("/api/upload")
-async def upload_file(file: UploadFile = File(...)):
-    with open("uploaded_data.csv", "wb") as f:
-        f.write(await file.read())
-    return {"message": "File uploaded successfully"}
+async def upload_files(files: List[UploadFile] = File(...)):
+    os.makedirs("uploaded_data", exist_ok=True)
+    for file in files:
+        with open(f"uploaded_data/{file.filename}", "wb") as f:
+            f.write(await file.read())
+    
+    # for tabular backward compatibility
+    if len(files) > 0:
+        with open("uploaded_data.csv", "wb") as f:
+            f.write(open(f"uploaded_data/{files[0].filename}", "rb").read())
+            
+    return {"message": "Files uploaded successfully"}
 
 @app.post("/api/generate")
 async def generate_data(config: str = Form(...)):
