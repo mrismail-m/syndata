@@ -53,13 +53,52 @@ def main():
     
     print("\nPHASE 1: SYNTHETIC DATA GENERATION")
     
+    invoices_df, line_items_df = None, None
     if os.path.exists("uploaded_data"):
         files = os.listdir("uploaded_data")
         if len(files) > 0:
             print(f">> Parsed document layout & schema from uploaded files: {files}")
-            
-    print(">> Generating realistic invoice line items, calculating tax rules and totals...")
-    invoices_df, line_items_df = generate_invoices(25)
+            # Check if one of them is the kaggle batch
+            for f in files:
+                if f.endswith('.csv'):
+                    df = pd.read_csv(f"uploaded_data/{f}")
+                    if 'json_data' in df.columns:
+                        print(">> Found Kaggle OCR dataset. Parsing JSON into relational tables...")
+                        invoices = []
+                        line_items = []
+                        for _, row in df.iterrows():
+                            try:
+                                data = json.loads(row['json_data'])
+                                inv_id = data.get('invoice_no', f"INV-{np.random.randint(1000, 9999)}")
+                                
+                                invoices.append({
+                                    "invoice_id": inv_id,
+                                    "date": pd.to_datetime(data.get('date_of_issue', '2025-01-01'), errors='coerce'),
+                                    "billed_to": data.get('client', {}).get('name', 'Unknown'),
+                                    "subtotal": float(data.get('summary', {}).get('net_worth', '0').replace(',', '')),
+                                    "tax": float(data.get('summary', {}).get('vat_amount', '0').replace(',', '')),
+                                    "total": float(data.get('summary', {}).get('gross_worth', '0').replace(',', ''))
+                                })
+                                
+                                for item in data.get('items', []):
+                                    line_items.append({
+                                        "invoice_id": inv_id,
+                                        "item_id": item.get('item_no', '1').replace('.', ''),
+                                        "description": item.get('description', 'Item'),
+                                        "qty": float(item.get('quantity', '1')),
+                                        "price": float(item.get('net_price', '0').replace(',', '')),
+                                        "amount": float(item.get('net_worth', '0').replace(',', ''))
+                                    })
+                            except:
+                                continue
+                        
+                        invoices_df = pd.DataFrame(invoices)
+                        line_items_df = pd.DataFrame(line_items)
+                        break
+
+    if invoices_df is None or line_items_df is None:
+        print(">> Generating realistic invoice line items, calculating tax rules and totals...")
+        invoices_df, line_items_df = generate_invoices(25)
     
     os.makedirs("document_output", exist_ok=True)
     invoices_df.to_csv("document_output/invoices.csv", index=False)
