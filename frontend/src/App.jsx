@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 export default function App() {
   const [activeTab, setActiveTab] = useState(null); // null, CREATE, PROFILE, GENERATION, PREVIEW
   const [project, setProject] = useState('New Project');
-  const [projects, setProjects] = useState([]);
+  const [workspaces, setWorkspaces] = useState({});
   
   const [file, setFile] = useState(null);
   const [files, setFiles] = useState([]);
@@ -66,9 +66,10 @@ export default function App() {
       return;
     }
     
-    if (project && !projects.includes(project)) {
-      setProjects(prev => [...prev, project]);
-    }
+    setWorkspaces(prev => ({
+      ...prev,
+      [project]: { projectType, progress: 30, results: null }
+    }));
     
     setActiveTab('GENERATION');
     setLogs([]);
@@ -150,10 +151,31 @@ export default function App() {
       const data = await res.json();
       if (data && !data.error) {
         setResults(data);
+        setWorkspaces(prev => ({
+          ...prev,
+          [project]: { ...prev[project], results: data, progress: 100 }
+        }));
         setActiveTab('PREVIEW');
       }
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const switchProject = (p) => {
+    setProject(p);
+    const ws = workspaces[p];
+    if (ws) {
+      setProjectType(ws.projectType);
+      setProgress(ws.progress);
+      setResults(ws.results);
+      if (ws.results) {
+        setActiveTab('PREVIEW');
+      } else if (ws.progress > 0 && ws.progress < 100) {
+        setActiveTab('GENERATION');
+      } else {
+        setActiveTab('CREATE');
+      }
     }
   };
 
@@ -167,14 +189,22 @@ export default function App() {
         </div>
         
         <div className="project-list">
-          {projects.map((p, idx) => (
-            <div key={idx} className={`project-item ${project === p ? 'active' : ''}`} onClick={() => { setProject(p); setActiveTab(results ? 'PREVIEW' : 'CREATE'); }}>
+          {Object.keys(workspaces).map((p, idx) => (
+            <div key={idx} className={`project-item ${project === p ? 'active' : ''}`} onClick={() => switchProject(p)}>
               <div className="project-dot"></div>
               {p}
             </div>
           ))}
           
-          <div className="new-project-btn" onClick={() => { setActiveTab('CREATE'); setProject('New Project'); }}>
+          <div className="new-project-btn" onClick={() => { 
+            setActiveTab('CREATE'); 
+            setProject('New Project'); 
+            setResults(null);
+            setProgress(0);
+            setProjectType('Tabular');
+            setFiles([]);
+            setFile(null);
+          }}>
             + New Project
           </div>
         </div>
