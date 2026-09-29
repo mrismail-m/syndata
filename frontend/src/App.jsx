@@ -150,10 +150,23 @@ export default function App() {
       const res = await fetch('http://localhost:8000/api/results');
       const data = await res.json();
       if (data && !data.error) {
+        
+        // Fetch images as blobs so they persist in the workspace
+        const imgUrls = {};
+        if (projectType !== 'Documents') {
+          for (const imgName of ['pca_projection.png', 'correlation_heatmap.png', 'dcr_histogram.png']) {
+            const imgRes = await fetch(`http://localhost:8000/api/image/${imgName}?t=${Date.now()}`);
+            if (imgRes.ok) {
+              const blob = await imgRes.blob();
+              imgUrls[imgName] = URL.createObjectURL(blob);
+            }
+          }
+        }
+        
         setResults(data);
         setWorkspaces(prev => ({
           ...prev,
-          [project]: { ...prev[project], results: data, progress: 100 }
+          [project]: { ...prev[project], results: data, progress: 100, images: imgUrls }
         }));
         setActiveTab('PREVIEW');
       }
@@ -502,15 +515,15 @@ export default function App() {
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', justifyItems: 'center' }}>
                       <div style={{ width: '100%', maxWidth: '350px', textAlign: 'center' }}>
-                        <img src={`http://localhost:8000/api/image/pca_projection.png?t=${Date.now()}`} alt="PCA" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
+                        <img src={workspaces[project]?.images?.['pca_projection.png'] || `http://localhost:8000/api/image/pca_projection.png?t=${Date.now()}`} alt="PCA" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>PCA Projection</div>
                       </div>
                       <div style={{ width: '100%', maxWidth: '350px', textAlign: 'center' }}>
-                        <img src={`http://localhost:8000/api/image/correlation_heatmap.png?t=${Date.now()}`} alt="Correlation" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
+                        <img src={workspaces[project]?.images?.['correlation_heatmap.png'] || `http://localhost:8000/api/image/correlation_heatmap.png?t=${Date.now()}`} alt="Correlation" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>Correlation Heatmap</div>
                       </div>
                       <div style={{ gridColumn: '1 / -1', width: '100%', maxWidth: '350px', textAlign: 'center', marginTop: '16px' }}>
-                        <img src={`http://localhost:8000/api/image/dcr_histogram.png?t=${Date.now()}`} alt="DCR" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
+                        <img src={workspaces[project]?.images?.['dcr_histogram.png'] || `http://localhost:8000/api/image/dcr_histogram.png?t=${Date.now()}`} alt="DCR" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>Distance to Closest Record (DCR)</div>
                       </div>
                     </div>
