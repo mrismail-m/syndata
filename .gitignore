@@ -1,0 +1,13 @@
+# Virtual Environments
+.venv/
+venv/
+/venv
+
+# Data & Output Files
+*.csv
+*.png
+*.json
+
+# Python Caches
+__pycache__/
+*.py[cod]
