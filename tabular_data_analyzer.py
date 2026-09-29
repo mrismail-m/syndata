@@ -28,7 +28,7 @@ def main():
     print("PHASE 1: SYNTHETIC DATA GENERATION (Auto-ML)")
     print("="*50)
     
-    gen_cmd = [sys.executable, "universal_data_generator.py", csv_file]
+    gen_cmd = [sys.executable, "../../universal_data_generator.py", csv_file]
     try:
         subprocess.run(gen_cmd, check=True)
     except subprocess.CalledProcessError:
@@ -45,7 +45,7 @@ def main():
     print("PHASE 2: INDUSTRY STANDARD EVALUATION")
     print("="*50)
     
-    eval_cmd = [sys.executable, "evaluator.py", csv_file, synthetic_file]
+    eval_cmd = [sys.executable, "../../evaluator.py", csv_file, synthetic_file]
     if target_col:
         eval_cmd.append(target_col)
         
@@ -60,7 +60,7 @@ def main():
     print("PHASE 3: GENERATING VISUALIZATIONS")
     print("="*50)
     
-    vis_cmd = [sys.executable, "visualizer.py", csv_file, synthetic_file]
+    vis_cmd = [sys.executable, "../../visualizer.py", csv_file, synthetic_file]
     try:
         subprocess.run(vis_cmd, check=True)
     except subprocess.CalledProcessError:

@@ -70,10 +70,10 @@ def main():
             if f.endswith(".csv"):
                 table_name = os.path.splitext(f)[0].capitalize()
                 data[table_name] = pd.read_csv(f"uploaded_data/{f}")
-    elif os.path.exists("sample_data/customers.csv"):
-        data['Customers'] = pd.read_csv("sample_data/customers.csv")
-        data['Orders'] = pd.read_csv("sample_data/orders.csv")
-        data['OrderItems'] = pd.read_csv("sample_data/order_items.csv")
+    elif os.path.exists("../../sample_data/customers.csv"):
+        data['Customers'] = pd.read_csv("../../sample_data/customers.csv")
+        data['Orders'] = pd.read_csv("../../sample_data/orders.csv")
+        data['OrderItems'] = pd.read_csv("../../sample_data/order_items.csv")
     else:
         data = generate_sample_data()
 
@@ -169,7 +169,7 @@ def main():
     
     if os.path.exists(real_csv) and os.path.exists(synth_csv):
         try:
-            subprocess.run([sys.executable, "visualizer.py", real_csv, synth_csv], check=True)
+            subprocess.run([sys.executable, "../../visualizer.py", real_csv, synth_csv], check=True)
             print("   ✅ Visualizations generated.")
         except Exception as e:
             print(f"   ⚠️ Visualization skipped: {e}")
