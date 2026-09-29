@@ -80,7 +80,7 @@ export default function App() {
     setCurrentStepLabel('Initializing Pipeline...');
     setResults(null);
     
-    if (projectType !== 'Documents') {
+    if (files.length > 0) {
       const formData = new FormData();
       formData.append('project_name', project);
       files.forEach(f => {
@@ -304,17 +304,17 @@ export default function App() {
                 <input type="text" placeholder="e.g. Retail Customers Q4" value={project} onChange={e => setProject(e.target.value)} />
               </div>
               
-              {projectType !== 'Documents' && (
+              {true && (
                 <div className="form-group">
-                  <label>Sample Dataset (CSV or SQLite database)</label>
+                  <label>Sample Dataset (CSV, SQLite, or PDF/Forms)</label>
                   <label className="upload-box">
                     {files.length > 1 
                       ? `${files.length} files selected` 
-                      : file ? file.name : "Choose CSV or SQLite (.sqlite / .db)"}
+                      : file ? file.name : "Choose CSV, SQLite, or Documents"}
                     <input 
                       type="file" 
-                      accept=".csv,.db,.sqlite" 
-                      multiple={projectType === 'Relational'} 
+                      accept=".csv,.db,.sqlite,.pdf,.docx" 
+                      multiple={projectType === 'Relational' || projectType === 'Documents'} 
                       style={{ display: 'none' }} 
                       onChange={handleFileUpload} 
                     />
@@ -546,9 +546,12 @@ export default function App() {
                 )}
 
                 {projectType === 'Documents' && (
-                  <div style={{ textAlign: 'center', padding: '40px', background: '#f9fafb', borderRadius: '8px', border: '1px dashed var(--border)' }}>
-                    <h4 style={{ margin: 0, color: 'var(--text-main)' }}>PDF-Style Document Preview</h4>
-                    <p style={{ margin: '8px 0 0 0', color: 'var(--text-muted)', fontSize: '14px' }}>HTML/PDF layout templates have been rendered. Subtotal, Tax, and Total fields have been mathematically verified across all line items.</p>
+                  <div style={{ marginTop: '24px', border: '1px solid var(--border)', borderRadius: '8px', background: '#fafafa', overflow: 'hidden' }}>
+                    <div style={{ padding: '16px', borderBottom: '1px solid var(--border)', background: 'white' }}>
+                      <h4 style={{ margin: 0, color: 'var(--text-main)' }}>Synthetic PDF-Style Document Preview</h4>
+                      <p style={{ margin: '8px 0 0 0', color: 'var(--text-muted)', fontSize: '14px' }}>HTML/PDF layout templates have been dynamically generated. Subtotal, Tax, and Total fields mathematically reconcile across all line items.</p>
+                    </div>
+                    <iframe src={`http://localhost:8000/api/document?project_name=${encodeURIComponent(project)}`} style={{ width: '100%', height: '500px', border: 'none' }} title="Document Preview" />
                   </div>
                 )}
                 

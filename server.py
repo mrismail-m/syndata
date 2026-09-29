@@ -113,7 +113,20 @@ async def download_csv(project_name: str):
     file_path = f"workspaces/{project_name}/universal_synthetic_output.csv"
     if os.path.exists(file_path):
         return FileResponse(file_path, media_type='text/csv', filename="synthetic_data.csv")
+    
+    # Check for document download (zip or just invoices)
+    doc_path = f"workspaces/{project_name}/document_output/invoices.csv"
+    if os.path.exists(doc_path):
+        return FileResponse(doc_path, media_type='text/csv', filename="synthetic_invoices.csv")
+        
     return {"error": "File not found"}
+
+@app.get("/api/document")
+async def get_document(project_name: str):
+    file_path = f"workspaces/{project_name}/document_output/sample_invoice.html"
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type='text/html')
+    return {"error": "Document not found"}
 
 if __name__ == "__main__":
     uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)

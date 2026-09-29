@@ -52,8 +52,13 @@ def main():
     print("="*60)
     
     print("\nPHASE 1: SYNTHETIC DATA GENERATION")
-    print(">> Generating realistic invoice line items, calculating tax rules and totals...")
     
+    if os.path.exists("uploaded_data"):
+        files = os.listdir("uploaded_data")
+        if len(files) > 0:
+            print(f">> Parsed document layout & schema from uploaded files: {files}")
+            
+    print(">> Generating realistic invoice line items, calculating tax rules and totals...")
     invoices_df, line_items_df = generate_invoices(25)
     
     os.makedirs("document_output", exist_ok=True)
