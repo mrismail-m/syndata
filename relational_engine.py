@@ -21,26 +21,26 @@ def generate_sample_data():
     
     # Customers
     customers = pd.DataFrame({
-        'customer_id': range(1, 101),
-        'name': [f"Customer_{i}" for i in range(1, 101)],
-        'email': [f"cust{i}@example.com" for i in range(1, 101)],
-        'signup_date': pd.date_range(start='2020-01-01', periods=100),
-        'balance': np.random.uniform(10, 1000, 100)
+        'customer_id': range(1, 21),
+        'name': [f"Customer_{i}" for i in range(1, 21)],
+        'email': [f"cust{i}@example.com" for i in range(1, 21)],
+        'signup_date': pd.date_range(start='2020-01-01', periods=20),
+        'balance': np.random.uniform(10, 1000, 20)
     })
     customers.to_csv('sample_data/customers.csv', index=False)
 
     # Orders
-    order_ids = range(1001, 1501)
+    order_ids = range(1001, 1051)
     orders = pd.DataFrame({
         'order_id': order_ids,
         'customer_id': np.random.choice(customers['customer_id'], len(order_ids)),
-        'order_date': pd.date_range(start='2021-01-01', periods=500),
+        'order_date': pd.date_range(start='2021-01-01', periods=50),
         'status': np.random.choice(['Pending', 'Completed', 'Cancelled'], len(order_ids))
     })
     orders.to_csv('sample_data/orders.csv', index=False)
 
     # Order Items
-    item_ids = range(10001, 11501)
+    item_ids = range(10001, 10151)
     order_items = pd.DataFrame({
         'item_id': item_ids,
         'order_id': np.random.choice(orders['order_id'], len(item_ids)),
@@ -63,7 +63,14 @@ def main():
 
     # 1. Load Data
     data = {}
-    if os.path.exists("sample_data/customers.csv"):
+    
+    if os.path.exists("uploaded_data") and len([f for f in os.listdir("uploaded_data") if f.endswith(".csv")]) > 1:
+        # Read uploaded files
+        for f in os.listdir("uploaded_data"):
+            if f.endswith(".csv"):
+                table_name = os.path.splitext(f)[0].capitalize()
+                data[table_name] = pd.read_csv(f"uploaded_data/{f}")
+    elif os.path.exists("sample_data/customers.csv"):
         data['Customers'] = pd.read_csv("sample_data/customers.csv")
         data['Orders'] = pd.read_csv("sample_data/orders.csv")
         data['OrderItems'] = pd.read_csv("sample_data/order_items.csv")
@@ -143,8 +150,27 @@ def main():
     with open("evaluation_report.json", "w") as f:
         json.dump(report_dict, f)
     
+    print("\nPHASE 3: GENERATING VISUALIZATIONS")
+    print(">> Generating relational visualization artifacts...")
+    import subprocess
+    
+    # Just run visualizer on the first table (e.g. Customers) to satisfy the UI prototype
+    first_table = list(data.keys())[0]
+    
+    # Temporarily save real_data to a csv for visualizer
+    real_csv = "temp_real.csv"
+    data[first_table].to_csv(real_csv, index=False)
+    synth_csv = f"relational_output/{first_table}_synthetic.csv"
+    
+    if os.path.exists(real_csv) and os.path.exists(synth_csv):
+        try:
+            subprocess.run([sys.executable, "visualizer.py", real_csv, synth_csv], check=True)
+            print("   ✅ Visualizations generated.")
+        except Exception as e:
+            print(f"   ⚠️ Visualization skipped: {e}")
+            
     print("\n" + "="*60)
-    print("✅ ANALYSIS COMPLETE: Relational constraints & privacy maintained.")
+    print("ANALYSIS COMPLETE")
     print("="*60)
 
 if __name__ == "__main__":

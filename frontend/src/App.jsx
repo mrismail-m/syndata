@@ -451,7 +451,7 @@ export default function App() {
                   </select>
                 </div>
                 
-                {projectType === 'Tabular' && (
+                {projectType !== 'Documents' && (
                   <>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '24px', fontSize: '14px' }}>
                       <span style={{ color: 'var(--accent-green)', fontWeight: '600' }}>■ Real</span>
@@ -473,13 +473,6 @@ export default function App() {
                       </div>
                     </div>
                   </>
-                )}
-                
-                {projectType === 'Relational' && (
-                  <div style={{ textAlign: 'center', padding: '40px', background: '#f9fafb', borderRadius: '8px', border: '1px dashed var(--border)' }}>
-                    <h4 style={{ margin: 0, color: 'var(--text-main)' }}>Multi-Table Visualization</h4>
-                    <p style={{ margin: '8px 0 0 0', color: 'var(--text-muted)', fontSize: '14px' }}>Relational visualizations (like ERD overlays and cross-table cardinality heatmaps) are currently being generated in the backend.</p>
-                  </div>
                 )}
 
                 {projectType === 'Documents' && (

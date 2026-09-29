@@ -51,13 +51,11 @@ def main():
     print("🚀 STARTING DOCUMENT GENERATION ENGINE")
     print("="*60)
     
-    time.sleep(1)
     print("\nPHASE 1: SYNTHETIC DATA GENERATION")
     print(">> Generating realistic invoice line items, calculating tax rules and totals...")
     
     invoices_df, line_items_df = generate_invoices(25)
     
-    time.sleep(2)
     os.makedirs("document_output", exist_ok=True)
     invoices_df.to_csv("document_output/invoices.csv", index=False)
     line_items_df.to_csv("document_output/invoice_line_items.csv", index=False)
@@ -66,7 +64,6 @@ def main():
 
     print("\nPHASE 2: INDUSTRY STANDARD EVALUATION")
     print(">> Reconciling math across documents (Subtotal + Tax == Total)...")
-    time.sleep(1.5)
     
     # Verify math
     math_errors = 0
@@ -80,7 +77,6 @@ def main():
 
     print("\nPHASE 3: GENERATING VISUALIZATIONS")
     print(">> Rendering PDF-style HTML layouts for generated documents...")
-    time.sleep(1.5)
     
     # Generate a dummy HTML invoice for the first record
     html_content = f"""
