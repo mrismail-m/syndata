@@ -82,6 +82,7 @@ export default function App() {
     
     if (projectType !== 'Documents') {
       const formData = new FormData();
+      formData.append('project_name', project);
       files.forEach(f => {
         formData.append('files', f);
       });
@@ -96,6 +97,7 @@ export default function App() {
     
     // Parse custom rules if needed, otherwise use defaults
     const config = {
+      project_name: project,
       project_type: projectType,
       target_column: targetColumn,
       num_rows: parseInt(numRows) || 1000,
@@ -110,7 +112,7 @@ export default function App() {
     
     await fetch('http://localhost:8000/api/generate', { method: 'POST', body: configForm });
     
-    const eventSource = new EventSource('http://localhost:8000/api/stream-logs');
+    const eventSource = new EventSource(`http://localhost:8000/api/stream-logs?project_name=${encodeURIComponent(project)}`);
     
     eventSource.onmessage = (e) => {
       if (e.data === '[DONE]') {
@@ -150,7 +152,7 @@ export default function App() {
   
   const fetchResults = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/results');
+      const res = await fetch(`http://localhost:8000/api/results?project_name=${encodeURIComponent(project)}`);
       const data = await res.json();
       if (data && !data.error) {
         
@@ -158,7 +160,7 @@ export default function App() {
         const imgUrls = {};
         if (projectType !== 'Documents') {
           for (const imgName of ['pca_projection.png', 'correlation_heatmap.png', 'dcr_histogram.png']) {
-            const imgRes = await fetch(`http://localhost:8000/api/image/${imgName}?t=${Date.now()}`);
+            const imgRes = await fetch(`http://localhost:8000/api/image/${imgName}?project_name=${encodeURIComponent(project)}&t=${Date.now()}`);
             if (imgRes.ok) {
               const blob = await imgRes.blob();
               imgUrls[imgName] = URL.createObjectURL(blob);
@@ -551,7 +553,7 @@ export default function App() {
                 )}
                 
                 <div style={{ textAlign: 'center', marginTop: '32px' }}>
-                  <a href="http://localhost:8000/api/download" download style={{ textDecoration: 'none' }}>
+                  <a href={`http://localhost:8000/api/download?project_name=${encodeURIComponent(project)}`} download style={{ textDecoration: 'none' }}>
                     <button className="primary-btn" style={{ width: 'auto', background: 'var(--accent-blue)' }}>Export Synthetic Data</button>
                   </a>
                 </div>
