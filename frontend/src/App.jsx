@@ -87,7 +87,7 @@ export default function App() {
         formData.append('files', f);
       });
       try {
-        await fetch('http://localhost:8000/api/upload', { method: 'POST', body: formData });
+        await fetch('/api/upload', { method: 'POST', body: formData });
       } catch (e) {
         setLogs(['Fatal Error: Could not connect to backend.']);
         return;
@@ -110,9 +110,9 @@ export default function App() {
     const configForm = new FormData();
     configForm.append('config', JSON.stringify(config));
     
-    await fetch('http://localhost:8000/api/generate', { method: 'POST', body: configForm });
+    await fetch('/api/generate', { method: 'POST', body: configForm });
     
-    const eventSource = new EventSource(`http://localhost:8000/api/stream-logs?project_name=${encodeURIComponent(project)}`);
+    const eventSource = new EventSource(`/api/stream-logs?project_name=${encodeURIComponent(project)}`);
     
     eventSource.onmessage = (e) => {
       if (e.data === '[DONE]') {
@@ -152,7 +152,7 @@ export default function App() {
   
   const fetchResults = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/api/results?project_name=${encodeURIComponent(project)}`);
+      const res = await fetch(`/api/results?project_name=${encodeURIComponent(project)}`);
       const data = await res.json();
       if (data && !data.error) {
         
@@ -160,7 +160,7 @@ export default function App() {
         const imgUrls = {};
         if (projectType !== 'Documents') {
           for (const imgName of ['pca_projection.png', 'correlation_heatmap.png', 'dcr_histogram.png']) {
-            const imgRes = await fetch(`http://localhost:8000/api/image/${imgName}?project_name=${encodeURIComponent(project)}&t=${Date.now()}`);
+            const imgRes = await fetch(`/api/image/${imgName}?project_name=${encodeURIComponent(project)}&t=${Date.now()}`);
             if (imgRes.ok) {
               const blob = await imgRes.blob();
               imgUrls[imgName] = URL.createObjectURL(blob);
@@ -532,15 +532,15 @@ export default function App() {
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', justifyItems: 'center' }}>
                       <div style={{ width: '100%', maxWidth: '350px', textAlign: 'center' }}>
-                        <img src={workspaces[project]?.images?.['pca_projection.png'] || `http://localhost:8000/api/image/pca_projection.png?t=${Date.now()}`} alt="PCA" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
+                        <img src={workspaces[project]?.images?.['pca_projection.png'] || `/api/image/pca_projection.png?t=${Date.now()}`} alt="PCA" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>PCA Projection</div>
                       </div>
                       <div style={{ width: '100%', maxWidth: '350px', textAlign: 'center' }}>
-                        <img src={workspaces[project]?.images?.['correlation_heatmap.png'] || `http://localhost:8000/api/image/correlation_heatmap.png?t=${Date.now()}`} alt="Correlation" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
+                        <img src={workspaces[project]?.images?.['correlation_heatmap.png'] || `/api/image/correlation_heatmap.png?t=${Date.now()}`} alt="Correlation" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>Correlation Heatmap</div>
                       </div>
                       <div style={{ gridColumn: '1 / -1', width: '100%', maxWidth: '350px', textAlign: 'center', marginTop: '16px' }}>
-                        <img src={workspaces[project]?.images?.['dcr_histogram.png'] || `http://localhost:8000/api/image/dcr_histogram.png?t=${Date.now()}`} alt="DCR" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
+                        <img src={workspaces[project]?.images?.['dcr_histogram.png'] || `/api/image/dcr_histogram.png?t=${Date.now()}`} alt="DCR" style={{ width: '100%', height: 'auto', border: '1px solid var(--border)', borderRadius: '4px' }} />
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>Distance to Closest Record (DCR)</div>
                       </div>
                     </div>
@@ -553,12 +553,12 @@ export default function App() {
                       <h4 style={{ margin: 0, color: 'var(--text-main)' }}>Synthetic PDF-Style Document Preview</h4>
                       <p style={{ margin: '8px 0 0 0', color: 'var(--text-muted)', fontSize: '14px' }}>HTML/PDF layout templates have been dynamically generated. Subtotal, Tax, and Total fields mathematically reconcile across all line items.</p>
                     </div>
-                    <iframe src={`http://localhost:8000/api/document?project_name=${encodeURIComponent(project)}`} style={{ width: '100%', height: '500px', border: 'none' }} title="Document Preview" />
+                    <iframe src={`/api/document?project_name=${encodeURIComponent(project)}`} style={{ width: '100%', height: '500px', border: 'none' }} title="Document Preview" />
                   </div>
                 )}
                 
                 <div style={{ textAlign: 'center', marginTop: '32px' }}>
-                  <a href={`http://localhost:8000/api/download?project_name=${encodeURIComponent(project)}`} download style={{ textDecoration: 'none' }}>
+                  <a href={`/api/download?project_name=${encodeURIComponent(project)}`} download style={{ textDecoration: 'none' }}>
                     <button className="primary-btn" style={{ width: 'auto', background: 'var(--accent-blue)' }}>Export Synthetic Data</button>
                   </a>
                 </div>

@@ -6,6 +6,7 @@ import asyncio
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 app = FastAPI(title="HackDataV2 Backend")
@@ -17,6 +18,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount the static dist folder
+if os.path.exists("frontend/dist"):
+    app.mount("/assets", StaticFiles(directory="frontend/dist/assets"), name="assets")
+
+    @app.get("/")
+    async def serve_spa():
+        return FileResponse("frontend/dist/index.html")
 
 from typing import List
 
@@ -129,4 +138,5 @@ async def get_document(project_name: str):
     return {"error": "Document not found"}
 
 if __name__ == "__main__":
-    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("server:app", host="0.0.0.0", port=port, reload=True)
