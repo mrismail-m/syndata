@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler
 from scipy.spatial.distance import cdist
 
 # Output directory for artifacts
-OUT_DIR = "/home/groot/.gemini/antigravity-ide/brain/9b17d3d0-427c-460a-8045-eae5a2d314bd/"
+OUT_DIR = "./"
 
 def plot_pca(real_df, synth_df):
     print("Generating PCA Projection...")

@@ -173,6 +173,10 @@ def main():
     print("Evaluating Privacy (DCR)...")
     report["Privacy"] = calculate_privacy(real_df, synth_df)
     
+    import json
+    with open("evaluation_report.json", "w") as f:
+        json.dump(report, f, indent=4)
+        
     print("\n" + "="*65)
     print(" 📊 SYNTHETIC DATA EVALUATION REPORT")
     print("="*65)

@@ -2,12 +2,21 @@
 .venv/
 venv/
 /venv
+__pycache__/
+*.py[cod]
+
+# Node / React Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
 
 # Data & Output Files
 *.csv
 *.png
 *.json
+*.pkl
 
-# Python Caches
-__pycache__/
-*.py[cod]
+# Secrets
+.env
+.env.*
