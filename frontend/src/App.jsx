@@ -68,7 +68,10 @@ export default function App() {
     
     setWorkspaces(prev => ({
       ...prev,
-      [project]: { projectType, progress: 30, results: null }
+      [project]: { 
+        projectType, progress: 30, results: null,
+        file, files, columns, numRows, randomSeed, targetColumn, piiColumns, nullRate, outlierRate
+      }
     }));
     
     setActiveTab('GENERATION');
@@ -182,6 +185,16 @@ export default function App() {
       setProjectType(ws.projectType);
       setProgress(ws.progress);
       setResults(ws.results);
+      setFile(ws.file || null);
+      setFiles(ws.files || []);
+      setColumns(ws.columns || []);
+      setNumRows(ws.numRows || 1000);
+      setRandomSeed(ws.randomSeed || 42);
+      setTargetColumn(ws.targetColumn || '');
+      setPiiColumns(ws.piiColumns || '');
+      setNullRate(ws.nullRate || 0);
+      setOutlierRate(ws.outlierRate || 0);
+      
       if (ws.results) {
         setActiveTab('PREVIEW');
       } else if (ws.progress > 0 && ws.progress < 100) {
