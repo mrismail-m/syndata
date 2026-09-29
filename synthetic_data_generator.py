@@ -11,7 +11,7 @@ from rdt.transformers.numerical import ClusterBasedNormalizer
 
 try:
     from sdv.metadata import SingleTableMetadata
-    from sdv.single_table import TVAESynthesizer
+    from sdv.single_table import TVAESynthesizer, GaussianCopulaSynthesizer
     from sdv.evaluation.single_table import evaluate_quality
     from sklearn.datasets import fetch_california_housing
 except ImportError as e:
@@ -57,9 +57,16 @@ def generate_and_evaluate(csv_path=None, num_rows=1000):
     print(f"Metadata detected in {time.time() - start_time:.2f} seconds.")
 
     print("\\n--- 2. Training Synthesizer ---")
-    # For smaller datasets, deep learning models like TVAE require significantly 
-    # more epochs to properly learn the distribution. We increase from 100 to 500.
-    synthesizer = TVAESynthesizer(metadata, epochs=500)
+    
+    # Dynamic Model Selection for maximum quality
+    if len(real_data) < 2000:
+        print("Small dataset detected (< 2000 rows). Using GaussianCopulaSynthesizer for optimal statistical fidelity.")
+        synthesizer = GaussianCopulaSynthesizer(metadata)
+    else:
+        print(f"Dataset has {len(real_data)} rows. Using TVAESynthesizer with optimized deep-learning hyperparameters.")
+        # Lower batch size increases weight update frequency per epoch, great for smaller datasets
+        batch_size = 50 if len(real_data) < 5000 else 500
+        synthesizer = TVAESynthesizer(metadata, epochs=500, batch_size=batch_size)
     
     print("\\n--- Updating Transformers ---")
     synthesizer.auto_assign_transformers(real_data)
