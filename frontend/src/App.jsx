@@ -242,9 +242,11 @@ export default function App() {
       <div className="main-area">
         {activeTab !== 'CREATE' && activeTab !== null && (
           <div className="tabs-header">
-            <div className={`tab ${activeTab === 'PROFILE' ? 'active' : ''}`} onClick={() => file && startProfiling()}>
-              DATA PROFILE & RULES
-            </div>
+            {projectType !== 'Documents' && (
+              <div className={`tab ${activeTab === 'PROFILE' ? 'active' : ''}`} onClick={() => file && startProfiling()}>
+                DATA PROFILE & RULES
+              </div>
+            )}
             <div className={`tab ${activeTab === 'GENERATION' ? 'active' : ''}`} onClick={() => file && setActiveTab('GENERATION')}>
               GENERATION
             </div>
@@ -319,7 +321,7 @@ export default function App() {
                       onChange={handleFileUpload} 
                     />
                   </label>
-                  {file && (
+                  {file && projectType !== 'Documents' && (
                     <div style={{ textAlign: 'right', marginTop: '8px' }}>
                       <button style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', cursor: 'pointer' }} onClick={startProfiling}>
                         Review Data Profile ➔
