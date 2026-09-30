@@ -19,4 +19,4 @@ dist-ssr/
 
 # Secrets
 .env
-.env.*
+.env.*workspaces/
