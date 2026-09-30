@@ -1,26 +1,23 @@
-# SynthAI Hub 🧠
+# SynthAI Hub
 
-A full-stack, multi-modal synthetic data generation engine designed to solve the privacy-utility bottleneck in Machine Learning. 
+SynthAI Hub is a multi-modal synthetic data generation platform designed to solve the privacy bottleneck in software testing and machine learning. 
 
-SynthAI Hub ingests sensitive production data (Tabular, Relational, or Unstructured Documents) and mathematically generates high-fidelity "synthetic twins" that preserve complex statistical correlations while mathematically guaranteeing zero privacy leaks.
+When developers need realistic data but cannot use actual production data due to privacy laws, SynthAI Hub steps in. It ingests sensitive tabular, relational, or document datasets and mathematically generates "synthetic twins" that maintain the exact statistical properties and cross-column correlations of the original data, without leaking any private information.
 
-![Architecture Presentation](presentation.html)
+## Core Features
+- **Tabular & Relational Modeling**: Uses the Synthetic Data Vault (SDV) and Gaussian Copulas to learn the exact distributions and relationships across complex data tables.
+- **Document Processing**: Parses nested OCR JSON data (such as invoices), structures it into relational tables, and synthesizes variations while strictly enforcing mathematical logic (e.g., ensuring quantity multiplied by price equals the subtotal).
+- **Strict Privacy Validation**: Evaluates generated datasets in high-dimensional space using Distance to Closest Record (DCR). The system mathematically proves zero rows were memorized or leaked from the source data.
+- **Absolute Sandbox Isolation**: The FastAPI backend dynamically provisions isolated sandbox directories for every project. It injects asynchronous Python subprocesses directly into these contexts, ensuring data from different projects never mixes.
+- **Real-Time Streaming**: Streams live terminal execution logs directly to the React frontend using Server-Sent Events (SSE).
 
-## 🚀 Features
-- **Tabular & Relational Modeling**: Leverages the Synthetic Data Vault (SDV) and Gaussian Copulas to learn exact marginal distributions and cross-column correlations.
-- **Document OCR Parsing**: Ingests raw OCR JSON (e.g., invoices), extracts relational components (parents vs. line items), and generates mathematically sound synthetic records (e.g., Quantity × Price = Subtotal).
-- **Strict Privacy Guarantees**: Evaluates generated datasets using high-dimensional Euclidean Distance to Closest Record (DCR) to prove zero data memorization.
-- **Absolute Sandbox Isolation**: The FastAPI orchestration layer dynamically provisions isolated directories for every project and injects asynchronous Python subprocesses into them, preventing cross-project data bleed.
-- **Real-Time Streaming**: Streams live terminal execution logs directly to the React SPA using Server-Sent Events (SSE).
-
-## 🛠️ Tech Stack
+## Tech Stack
 - **Frontend**: React.js, Vite
 - **Backend Orchestrator**: Python, FastAPI, Uvicorn
-- **ML Engines**: PyTorch, SDV, Copulas, scikit-learn, sdmetrics
+- **Machine Learning**: PyTorch, SDV, Copulas, scikit-learn, sdmetrics
 - **Visualizations**: Matplotlib, Seaborn
-- **Infrastructure Ready**: Designed for isolated VPS daemonization via `systemd`.
 
-## ⚙️ How to Run Locally
+## How to Run Locally
 
 1. **Clone the repository:**
    ```bash
@@ -28,14 +25,14 @@ SynthAI Hub ingests sensitive production data (Tabular, Relational, or Unstructu
    cd syndata
    ```
 
-2. **Set up the Python Backend:**
+2. **Set up the backend environment:**
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate
    pip install -r requirements.txt
    ```
 
-3. **Set up the React Frontend:**
+3. **Build the frontend:**
    ```bash
    cd frontend
    npm install
@@ -43,17 +40,17 @@ SynthAI Hub ingests sensitive production data (Tabular, Relational, or Unstructu
    cd ..
    ```
 
-4. **Start the FastAPI Server:**
+4. **Start the server:**
    ```bash
-   # The FastAPI server automatically mounts and serves the compiled React frontend!
+   # The FastAPI backend automatically serves the compiled React app
    python server.py
    ```
    Navigate to `http://localhost:8000` in your browser.
 
-## 📊 Evaluation & Metrics
-The pipeline doesn't just generate data; it validates it.
+## Evaluation Metrics
+The pipeline inherently evaluates the data it generates against industry-standard metrics:
 - **Fidelity**: Kolmogorov-Smirnov (KS) statistic and Correlation Matrix Error.
-- **Privacy**: 5th Percentile DCR and exact-match detection.
+- **Privacy**: Distance to Closest Record (5th Percentile) and exact-match leak detection.
 
-## 📝 License
-MIT
+## License
+MIT License
